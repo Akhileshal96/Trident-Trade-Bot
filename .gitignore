@@ -205,3 +205,10 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Trident Trade Bot sensitive files
+.env
+access_token.txt
+symbol_to_token.json
+token_to_symbol.json
+trades.csv
