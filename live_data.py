@@ -1,6 +1,10 @@
 # live_data.py
+
 from kiteconnect import KiteTicker
 import json
+import os
+import pandas as pd
+
 from kite_api import get_kite_instance
 from kite_api_config import SIGNAL_THRESHOLD
 from strategy_engine import evaluate_signals
@@ -8,19 +12,25 @@ from trade_executor import execute_trade
 from trade_tracker import track_new_trade, monitor_trades
 from risk_manager import within_trading_hours, can_trade
 from telegram_alerts import send_telegram_message
-import pandas as pd
 
-kite = get_kite_instance()
+# 🔹 NEW: Auto-fetch Nifty 100
+from niftystocks import ns
+def fetch_symbol_list():
+    return ns.get_nifty100()
 
+# 🔹 Get symbols dynamically
+watchlist = fetch_symbol_list()
+
+# 🔹 Get instrument tokens
 from get_tokens import get_token_map_nifty100
 symbol_to_token = get_token_map_nifty100()
 
-symbols = fetch_symbol_list()  # Use your dynamic method to get stock symbols
-
-watch_tokens = [symbol_to_token[symbol] for symbol in watchlist]
+watch_tokens = [symbol_to_token[symbol] for symbol in watchlist if symbol in symbol_to_token]
 token_to_symbol = {v: k for k, v in symbol_to_token.items()}
 historical_data = {symbol: [] for symbol in watchlist}
 tick_data = {}
+
+kite = get_kite_instance()
 
 def on_ticks(ws, ticks):
     for tick in ticks:
@@ -41,6 +51,7 @@ def on_ticks(ws, ticks):
         history = historical_data[symbol]
         history.append({
             "close": ltp,
+            "open": tick.get("ohlc", {}).get("open", ltp),
             "high": tick.get("ohlc", {}).get("high", ltp),
             "low": tick.get("ohlc", {}).get("low", ltp)
         })
