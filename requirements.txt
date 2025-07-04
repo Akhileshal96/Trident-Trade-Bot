@@ -2,3 +2,4 @@ kiteconnect
 python-telegram-bot
 python-dotenv
 pandas
+niftystocks
