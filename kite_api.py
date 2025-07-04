@@ -6,8 +6,8 @@ def get_kite_instance():
     api_key = os.getenv("KITE_API_KEY")
     access_token = None
 
-    with open("access_token.txt", "r") as f:
-        access_token = f.read().strip()
+    import os
+access_token = os.getenv("ACCESS_TOKEN")
 
     kite = KiteConnect(api_key=api_key)
     kite.set_access_token(access_token)
