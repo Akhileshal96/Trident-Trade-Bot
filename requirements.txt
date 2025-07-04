@@ -1,0 +1,4 @@
+kiteconnect
+python-telegram-bot
+dotenv
+pandas

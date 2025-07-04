@@ -1,0 +1,1 @@
+# Reads config from .env
