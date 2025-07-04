@@ -3,8 +3,8 @@ from kite_api import get_kite_instance
 from kite_api_config import TRADE_CAPITAL
 import json
 
-with open("symbol_to_token.json", "r") as f:
-    SYMBOL_TO_TOKEN = json.load(f)
+from get_tokens import get_token_map_nifty100
+symbol_to_token = get_token_map_nifty100()
 
 def execute_trade(symbol, ltp):
     kite = get_kite_instance()
