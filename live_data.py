@@ -12,8 +12,8 @@ import pandas as pd
 
 kite = get_kite_instance()
 
-with open("symbol_to_token.json", "r") as f:
-    symbol_to_token = json.load(f)
+from get_tokens import get_token_map_nifty100
+symbol_to_token = get_token_map_nifty100()
 
 with open("watchlist.json", "r") as f:
     watchlist = json.load(f)
