@@ -15,8 +15,7 @@ kite = get_kite_instance()
 from get_tokens import get_token_map_nifty100
 symbol_to_token = get_token_map_nifty100()
 
-with open("watchlist.json", "r") as f:
-    watchlist = json.load(f)
+symbols = fetch_symbol_list()  # Use your dynamic method to get stock symbols
 
 watch_tokens = [symbol_to_token[symbol] for symbol in watchlist]
 token_to_symbol = {v: k for k, v in symbol_to_token.items()}
