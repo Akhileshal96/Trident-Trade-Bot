@@ -1,4 +1,3 @@
-# get_tokens.py
 import pandas as pd
 
 def get_token_map_nifty100():
@@ -15,6 +14,5 @@ def get_token_map_nifty100():
     ]
 
     df = df[df['tradingsymbol'].isin(nifty100_symbols)]
-
     token_map = dict(zip(df['tradingsymbol'], df['instrument_token']))
     return token_map
