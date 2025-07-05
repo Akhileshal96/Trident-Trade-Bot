@@ -1,42 +1,41 @@
-# trade_executor.py
 from kite_api import get_kite_instance
-from kite_api_config import TRADE_CAPITAL
-import json
+from telegram_alerts import send_telegram_message
+from trade_logger import log_trade
+from trade_tracker import track_new_trade
 
-from get_tokens import get_token_map_nifty100
-symbol_to_token = get_token_map_nifty100()
+kite = get_kite_instance()
 
-def execute_trade(symbol, ltp):
-    kite = get_kite_instance()
-
-    capital_per_trade = TRADE_CAPITAL
-    qty = int(capital_per_trade // ltp)
-
-    if qty <= 0:
-        print(f"[⚠️] Quantity zero for {symbol}, skipping trade.")
-        return None
-
+def execute_trade(symbol, ltp, direction='BUY', quantity=1, sl_points=2, tp_points=5):
     try:
-        order_id = kite.place_order(
+        # Place order (mock or live)
+        order = kite.place_order(
             variety=kite.VARIETY_REGULAR,
             exchange=kite.EXCHANGE_NSE,
             tradingsymbol=symbol,
-            transaction_type=kite.TRANSACTION_TYPE_BUY,
-            quantity=qty,
-            order_type=kite.ORDER_TYPE_MARKET,
-            product=kite.PRODUCT_MIS
+            transaction_type=direction,
+            quantity=quantity,
+            product=kite.PRODUCT_MIS,
+            order_type=kite.ORDER_TYPE_MARKET
         )
 
-        print(f"[✅] Buy order placed for {symbol} (Qty: {qty})")
-        return {
+        sl = ltp - sl_points if direction == 'BUY' else ltp + sl_points
+        tp = ltp + tp_points if direction == 'BUY' else ltp - tp_points
+
+        trade = {
             "symbol": symbol,
-            "qty": qty,
-            "entry": ltp,
-            "sl": round(ltp * 0.98, 2),
-            "tp": round(ltp * 1.02, 2),
-            "status": "open"
+            "ltp": ltp,
+            "sl": sl,
+            "tp": tp,
+            "direction": direction,
+            "order_id": order['order_id']
         }
 
+        log_trade(trade)
+        track_new_trade(trade)
+        send_telegram_message(f"✅ Trade Executed: {symbol} ({direction}) @ ₹{ltp}")
+
+        return trade
+
     except Exception as e:
-        print(f"[❌] Trade failed: {e}")
+        send_telegram_message(f"❌ Failed to place trade for {symbol}: {e}")
         return None
