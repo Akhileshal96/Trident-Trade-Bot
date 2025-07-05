@@ -1,5 +1,5 @@
 kiteconnect
-python-telegram-bot
-python-dotenv
+telethon
 pandas
-niftystocks
+numpy
+python-dotenv
