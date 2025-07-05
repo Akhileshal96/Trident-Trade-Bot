@@ -1,26 +1,25 @@
-# trade_logger.py
 import csv
-import os
 from datetime import datetime
 
-def log_trade(trade, exit_price, pnl):
-    file_path = "trades.csv"
-    file_exists = os.path.exists(file_path)
+LOG_FILE = "trades.csv"
 
-    with open(file_path, mode="a", newline="") as file:
-        writer = csv.writer(file)
-        if not file_exists:
-            writer.writerow(["Date", "Time", "Symbol", "Entry", "SL", "TP", "Exit", "Qty", "PNL"])
+def log_trade(trade_data):
+    fieldnames = ['timestamp', 'symbol', 'ltp', 'sl', 'tp', 'direction', 'order_id']
+    trade_data['timestamp'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-        now = datetime.now()
-        writer.writerow([
-            now.strftime("%Y-%m-%d"),
-            now.strftime("%H:%M:%S"),
-            trade["symbol"],
-            trade["entry"],
-            trade["sl"],
-            trade["tp"],
-            exit_price,
-            trade["qty"],
-            round(pnl, 2)
-        ])
+    try:
+        file_exists = False
+        try:
+            with open(LOG_FILE, 'r') as f:
+                file_exists = True
+        except FileNotFoundError:
+            pass
+
+        with open(LOG_FILE, 'a', newline='') as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            if not file_exists:
+                writer.writeheader()
+            writer.writerow(trade_data)
+
+    except Exception as e:
+        print(f"Logging Error: {e}")
