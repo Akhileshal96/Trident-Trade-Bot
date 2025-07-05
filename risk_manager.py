@@ -1,27 +1,34 @@
-# risk_manager.py
-from datetime import datetime
-from kite_api_config import MAX_DAILY_LOSS, MAX_TRADES_PER_DAY
+from datetime import datetime, time
 
-# Daily tracking (reset on bot restart)
-daily_loss = 0
-daily_trades = 0
+# Time window (example: 9:20 AM to 3:15 PM)
+TRADING_START = time(9, 20)
+TRADING_END = time(15, 15)
+
+# Risk configuration (can be externalized to a config file or .env)
+MAX_TRADES_PER_DAY = 10
+MAX_DAILY_LOSS = -1500  # INR
+MAX_RISK_PER_TRADE = 500  # INR
+
+trades_today = []
+cumulative_pnl = 0
 
 def within_trading_hours():
     now = datetime.now().time()
-    return now >= datetime.strptime("09:15", "%H:%M").time() and \
-           now <= datetime.strptime("15:30", "%H:%M").time()
+    return TRADING_START <= now <= TRADING_END
 
 def can_trade():
-    return daily_loss < MAX_DAILY_LOSS and daily_trades < MAX_TRADES_PER_DAY
+    if len(trades_today) >= MAX_TRADES_PER_DAY:
+        return False
+    if cumulative_pnl <= MAX_DAILY_LOSS:
+        return False
+    return True
 
-def record_trade(pnl):
-    global daily_loss, daily_trades
-    daily_trades += 1
-    daily_loss += abs(pnl) if pnl < 0 else 0
+def register_trade(pnl):
+    global cumulative_pnl
+    trades_today.append(pnl)
+    cumulative_pnl += pnl
 
-def get_risk_status():
-    return {
-        "daily_loss": daily_loss,
-        "daily_trades": daily_trades,
-        "can_trade": can_trade()
-    }
+def reset_day():
+    global trades_today, cumulative_pnl
+    trades_today = []
+    cumulative_pnl = 0
