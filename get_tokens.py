@@ -1,18 +1,21 @@
-import pandas as pd
+import json
 
-def get_token_map_nifty100():
-    url = "https://api.kite.trade/instruments"
-    df = pd.read_csv(url)
+def build_token_maps(instruments_file='instruments.json'):
+    symbol_to_token = {}
+    token_to_symbol = {}
 
-    df = df[(df['exchange'] == 'NSE') & (df['instrument_type'] == 'EQ')]
+    with open(instruments_file, 'r') as f:
+        instruments = json.load(f)
 
-    nifty100_symbols = [
-        "RELIANCE", "INFY", "TCS", "HDFCBANK", "ICICIBANK", "KOTAKBANK",
-        "ITC", "LT", "SBIN", "AXISBANK", "HCLTECH", "WIPRO", "ASIANPAINT",
-        "ULTRACEMCO", "SUNPHARMA", "MARUTI", "TITAN", "BAJAJFINSV", "NESTLEIND",
-        "HINDUNILVR"
-    ]
+    for instrument in instruments:
+        if instrument['exchange'] == 'NSE' and instrument['tradingsymbol'].isalpha():
+            token = instrument['instrument_token']
+            symbol = instrument['tradingsymbol']
+            symbol_to_token[symbol] = token
+            token_to_symbol[str(token)] = symbol
 
-    df = df[df['tradingsymbol'].isin(nifty100_symbols)]
-    token_map = dict(zip(df['tradingsymbol'], df['instrument_token']))
-    return token_map
+    with open('symbol_to_token.json', 'w') as f:
+        json.dump(symbol_to_token, f)
+
+    with open('token_to_symbol.json', 'w') as f:
+        json.dump(token_to_symbol, f)
