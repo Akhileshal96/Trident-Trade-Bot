@@ -1,14 +1,19 @@
-# Trident Trade Bot
+# Trident Trade Bot (Zerodha + Telethon)
 
-An automated Zerodha trading bot with:
-- EMA, RSI, MACD strategy logic
-- Auto SL/TP exit monitoring
-- Telegram trade alerts
-- Daily trade/risk limits
+Automated trading bot using Kite Connect API and Telegram control via Telethon.
+
+## Features
+- EMA, RSI, MACD Strategy
+- Risk Control (SL, TP, Max Loss, Max Trades)
+- Telegram Command Control (/start, /status, /stop, /log, etc.)
+- Real-time Price Monitoring
+- Trade Logging & Alerts
 
 ## Setup
+1. Fill `.env` with your keys
+2. Generate token using `generate_token.py`
+3. Start bot: `python live_data.py`
 
-1. Clone this repo
-2. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
+---
+
+Created by AK.
